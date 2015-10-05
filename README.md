@@ -36,7 +36,7 @@ Example:
 hadoop fs -put test/input/ .
 hive --hiveconf PATH=/user/root/input/ -f test/test.ddl
 export HADOOP_CONF_DIR=/etc/hadoop/conf
-$SPARK_HOME/bin/spark-submit --class com.github.randerzander.HiveToPhoenix --master yarn-client --num-executors 1 --executor-memory 512M HiveToPhoenix-0.0.1-SNAPSHOT.jar job.props
+$SPARK_HOME/bin/spark-submit --class com.github.randerzander.HiveToPhoenix --master yarn-client --num-executors 1 --executor-memory 512M target/HiveToPhoenix-0.0.1-SNAPSHOT.jar job.props
 /usr/hdp/current/phoenix-client/bin/psql.py localhost:/hbase-unsecure test/test_out.sql
 
 Output:
@@ -47,6 +47,9 @@ Time: 0.039 sec(s)
 ```
 
 Here we've put data in HDFS & defined a Hive table for reading it. Then we ran a Spark job to load the Hive table into a Phoenix table.
+
+test/input/test.txt contained 2 records, but the Phoenix table contains only one: the test/test_in.sql script included a "where" clause filter, demonstrating the ability to load specific subsets of records.
+
 
 ToDo:
 
