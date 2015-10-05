@@ -28,6 +28,8 @@ If srcScript is not null, the contents of the file at the specified path will be
 
 Note: srcScript is provided as a convenience the allows the user to specify filters, but the query results currently must have the same schema as srcTable.
 
+typeMap exists because Hive types and Phoenix types are not 1 to 1. "string|varchar" means that "string" types in the source table will be mapped to "varchar" types in the Phoenix table. Hive and Phoenix types are evolving, so the user is free to update this typeMap field.
+
 Example:
 ```
 hadoop fs -put test/input/ .
@@ -44,6 +46,7 @@ Time: 0.039 sec(s)
 ```
 
 ToDo:
+
 1. Support derived expressions, e.g. select id, count(*) as count from srcTable
 
 To build manually:
