@@ -37,7 +37,7 @@ hadoop fs -put test/input/ .
 hive --hiveconf PATH=/user/root/input/ -f test/test.ddl
 export SPARK_HOME=/usr/hdp/current/spark
 export HADOOP_CONF_DIR=/etc/hadoop/conf
-$SPARK_HOME/bin/spark-submit --class com.github.randerzander.HiveToPhoenix --master yarn-client --num-executors 1 --executor-memory 512M target/HiveToPhoenix-0.0.1-SNAPSHOT.jar job.props
+$SPARK_HOME/bin/spark-submit --class com.github.randerzander.HiveToPhoenix --master yarn-client --num-executors 1 --executor-memory 512M target/HiveToPhoenix-0.0.1-SNAPSHOT.jar test/job.props
 /usr/hdp/current/phoenix-client/bin/psql.py localhost:/hbase-unsecure test/test_out.sql
 
 Output:
