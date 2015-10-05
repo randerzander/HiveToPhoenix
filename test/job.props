@@ -3,7 +3,7 @@ srcPass=
 srcClass=org.apache.hive.jdbc.HiveDriver
 srcConnStr=jdbc:hive2://localhost:10000
 srcTable=test
-srcScript=script.sql
+srcScript=test/test_in.sql
 
 dstTable=test
 dstUser=
