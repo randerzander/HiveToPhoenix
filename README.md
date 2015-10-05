@@ -2,7 +2,7 @@ Apache Hive is a data warehouse style SQL engine for Apache Hadoop. Apache Phoen
 
 The HiveToPhoenix artifact is intended to be used as a reusable application for executing queries against Hive tables and saving results to Phoenix tables. It requires an input properties file and relies on SparkSQL's DataFrames to make Hive->Phoenix data movement easy.
 
-Job Properties file must have the following format:
+The job properties (job.props) file takes the typical Java Properties file format:
 ```
 srcUser=
 srcPass=
@@ -30,6 +30,7 @@ Note: srcScript is provided as a convenience the allows the user to specify filt
 
 typeMap exists because Hive types and Phoenix types are not 1 to 1. "string|varchar" means that "string" types in the source table will be mapped to "varchar" types in the Phoenix table. Hive and Phoenix types are evolving, so the user is free to update this typeMap field.
 
+**Note**: The following example assumes there are no existing Hive or Phoenix tables named "test".
 Example:
 ```
 hadoop fs -put test/input/ .
@@ -44,6 +45,8 @@ ID                                                                            VA
 a                                                                               1 
 Time: 0.039 sec(s)
 ```
+
+Here we've put data in HDFS & defined a Hive table for reading it. Then we ran a Spark job to load the Hive table into a Phoenix table.
 
 ToDo:
 
