@@ -8,7 +8,8 @@
   <version>0.0.1-SNAPSHOT</version>
 
   <properties>
-    <spark.version>1.5.1</spark.version>
+    <hdp.version>2.3.2.0-2950</hdp.version>
+    <spark.version>1.4.1</spark.version>
     <scala.version>2.10</scala.version>
   </properties>
 
@@ -54,25 +55,25 @@
     <dependency>
       <groupId>org.apache.phoenix</groupId>
       <artifactId>phoenix-core</artifactId>
-      <version>4.4.0.2.3.0.0-2557</version>
+      <version>4.4.0.${hdp.version}</version>
     </dependency>
 
     <dependency>
       <groupId>org.apache.phoenix</groupId>
       <artifactId>phoenix-spark</artifactId>
-      <version>4.4.0.2.3.0.0-2557</version>
+      <version>4.4.0.${hdp.version}</version>
     </dependency>
 
     <dependency>
       <groupId>org.apache.spark</groupId>
       <artifactId>spark-hive_2.10</artifactId>
-      <version>1.5.0</version>
+      <version>1.4.1</version>
     </dependency>
 
     <dependency>
       <groupId>org.apache.hive</groupId>
       <artifactId>hive-jdbc</artifactId>
-      <version>1.2.1.2.3.0.0-2557</version>
+      <version>1.2.1.${hdp.version}</version>
     </dependency>
 
     <dependency>
