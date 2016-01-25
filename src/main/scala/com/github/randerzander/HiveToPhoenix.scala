@@ -68,7 +68,12 @@ object HiveToPhoenix{
     try{
       Class.forName(driverClass)
       conn = DriverManager.getConnection(connStr, user, pass)
-    }catch{ case e: Exception => e.printStackTrace }
+    }catch{
+      case e: Exception => {
+        e.printStackTrace
+        System.exit(1)
+      }
+    }
     conn
   }
 
