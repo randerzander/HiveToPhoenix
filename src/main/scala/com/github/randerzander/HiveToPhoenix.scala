@@ -13,10 +13,11 @@ object HiveToPhoenix{
   def main(args: Array[String]) {
     val props = getProps(args(0))
 
-    val srcUser = props get "srcUser" get
-    val srcPass = props get "srcPass" get
-    val srcClass = props get "srcClass" get
-    val srcConnStr = props get "srcConnStr" get
+    //val srcUser = props get "srcUser" get
+    //val srcPass = props get "srcPass" get
+    //val srcClass = props get "srcClass" get
+    //val srcConnStr = props get "srcConnStr" get
+    //val srcDb = props get "srcDb" get
     val srcTable = props get "srcTable" get
     val srcScript = props get "srcScript" get
 
@@ -32,34 +33,33 @@ object HiveToPhoenix{
     var typeMap = new HashMap[String, String]().withDefaultValue(null)
     props.get("typeMap").get.split(",").map(x => typeMap.put(x.split("\\|")(0).toLowerCase, x.split("\\|")(1).toLowerCase))
 
-    val srcMeta = getConn(srcClass, srcConnStr, srcUser, srcPass).getMetaData()
-    val srcTableMeta = srcMeta.getColumns(null, null, srcTable, null)
-
-    // Create Phoenix DDL
-    var command = "create table if not exists " + dstTable + "("
-    while (srcTableMeta.next){
-      val colName = srcTableMeta.getString(4)
-      val srcType = srcTableMeta.getString(6).toLowerCase
-      val dstType = if (typeMap contains srcType) typeMap get srcType get else srcType
-      command += colName + " " + dstType + ","
-    }
-    command += " constraint my_pk primary key (" + dstPk +"))"
-    println("Phoenix DDL Statement:\n" + command)
-
-    // Execute Phoenix DDL
-    getConn(dstClass, dstConnStr, dstUser, dstPass).createStatement().execute(command)
+    //val srcMeta = getConn(srcClass, srcConnStr, srcUser, srcPass).getMetaData()
+    //val srcTableMeta = srcMeta.getColumns(null, srcDb, srcTable, null)
 
     val query = if (srcScript != null) fromFile(srcScript).getLines().mkString("") else "select * from " + srcTable
-    println("Hive query: \n" + query)
+    println("INFO: SOURCE QUERY: \n" + query)
 
-    // Load source into df and save to Phoenix
+    // Load source into df
     val sparkConf = new SparkConf().setAppName("HiveToPhoenix-"+srcTable+"-"+dstTable)
     val sc = new SparkContext(sparkConf)
     val sqlContext = new org.apache.spark.sql.hive.HiveContext(sc)
     var df = sqlContext.sql(query)
     df = df.toDF(df.columns.map(x => x.toUpperCase):_*)
-    df.save("org.apache.phoenix.spark", SaveMode.Overwrite, Map("table" -> dstTable.toUpperCase, "zkUrl" -> dstZkUrl))
 
+    // Create Phoenix DDL
+    var command = "create table if not exists " + dstTable + "("
+    for (field <- df.schema){
+      val srcType = field.dataType.simpleString
+      val dstType = if (typeMap contains srcType) typeMap get srcType get else srcType
+      command += field.name + " " + dstType + ","
+    }
+    command += " constraint my_pk primary key (" + dstPk +"))"
+    println("INFO: DESTINATION DDL:\n" + command)
+    // Execute Phoenix DDL
+    getConn(dstClass, dstConnStr, dstUser, dstPass).createStatement().execute(command)
+
+    // Save query results in Phoenix and quit
+    df.save("org.apache.phoenix.spark", SaveMode.Overwrite, Map("table" -> dstTable.toUpperCase, "zkUrl" -> dstZkUrl))
     sc.stop()
   }
 

@@ -15,10 +15,6 @@
 
   <repositories>
     <repository>
-      <id>apache</id>
-      <url>https://repository.apache.org/content/repositories/releases</url>
-    </repository>
-    <repository>
       <id>hortonworks</id>
       <url>http://repo.hortonworks.com/content/repositories/releases/</url>
     </repository>
@@ -55,7 +51,7 @@
 
     <dependency>
       <groupId>org.apache.phoenix</groupId>
-      <artifactId>phoenix-core</artifactId>
+      <artifactId>phoenix-server-client</artifactId>
       <version>4.4.0.${hdp.version}</version>
     </dependency>
 
@@ -63,18 +59,13 @@
       <groupId>org.apache.phoenix</groupId>
       <artifactId>phoenix-spark</artifactId>
       <version>4.4.0.${hdp.version}</version>
+      <scope>provided</scope>
     </dependency>
 
     <dependency>
       <groupId>org.apache.spark</groupId>
       <artifactId>spark-hive_2.10</artifactId>
       <version>1.5.2.${hdp.version}</version>
-    </dependency>
-
-    <dependency>
-      <groupId>org.apache.hive</groupId>
-      <artifactId>hive-jdbc</artifactId>
-      <version>1.2.1.${hdp.version}</version>
     </dependency>
 
     <dependency>
