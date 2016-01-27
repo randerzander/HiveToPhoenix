@@ -22,8 +22,6 @@ If srcScript is null, the Phoenix table will be loaded with the result of "selec
 
 If srcScript is not null, the contents of the file at the specified path will be executed by SparkSQL and results will be loaded.
 
-Note: srcScript is provided as a convenience the allows the user to specify filters, but the query results currently must have the same schema as srcTable.
-
 typeMap exists because Hive types and Phoenix types are not 1 to 1. "string|varchar" means that "string" types in the source table will be mapped to "varchar" types in the Phoenix table. Hive and Phoenix types are evolving, so the user is free to update this typeMap field.
 
 **Note**: The following example assumes there are no existing Hive or Phoenix tables named "test".
@@ -33,7 +31,7 @@ hadoop fs -put test/input/ .
 hive --hiveconf PATH=/user/root/input/ -f test/test.ddl
 export SPARK_HOME=/usr/hdp/current/spark-client
 export HADOOP_CONF_DIR=/etc/hadoop/conf
-$SPARK_HOME/bin/spark-submit --class com.github.randerzander.HiveToPhoenix --master yarn-client --num-executors 1 --executor-memory 512M target/HiveToPhoenix-0.0.1-SNAPSHOT.jar test/job.props
+$SPARK_HOME/bin/spark-submit --class com.github.randerzander.HiveToPhoenix --master yarn-client target/HiveToPhoenix-0.0.1-SNAPSHOT.jar test/job.props
 /usr/hdp/current/phoenix-client/bin/psql.py localhost:/hbase-unsecure test/test_out.sql
 
 Output:
