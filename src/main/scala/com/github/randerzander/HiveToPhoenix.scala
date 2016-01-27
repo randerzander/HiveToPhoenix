@@ -35,7 +35,7 @@ object HiveToPhoenix{
     if (jars != null) sparkConf = sparkConf.setJars(jars.split(","))
     val sc = new SparkContext(sparkConf)
     val sqlContext = new org.apache.spark.sql.hive.HiveContext(sc)
-    var df = sqlContext.sql(query)
+    var df = sqlContext.sql(query.stripSuffix(";"))
     df = df.toDF(df.columns.map(x => x.toUpperCase):_*)
 
     // Create Phoenix DDL
