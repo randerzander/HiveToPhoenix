@@ -16,6 +16,7 @@ dstZkUrl=localhost:2181:/hbase-unsecure
 dstPk=id
 
 typeMap=string|varchar,int|integer
+jars=
 ```
 
 If srcScript is null, the Phoenix table will be loaded with the result of "select * from srcTable".
@@ -23,6 +24,8 @@ If srcScript is null, the Phoenix table will be loaded with the result of "selec
 If srcScript is not null, the contents of the file at the specified path will be executed by SparkSQL and results will be loaded.
 
 typeMap exists because Hive types and Phoenix types are not 1 to 1. "string|varchar" means that "string" types in the source table will be mapped to "varchar" types in the Phoenix table. Hive and Phoenix types are evolving, so the user is free to update this typeMap field.
+
+The "jars" property allows end-users to supply a comma separated list of jars which need to be available on the classpath of the executors (JVM libraries, etc)
 
 **Note**: The following example assumes there are no existing Hive or Phoenix tables named "test".
 Example:
