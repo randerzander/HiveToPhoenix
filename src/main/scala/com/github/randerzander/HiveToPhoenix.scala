@@ -7,17 +7,10 @@ import java.sql.{Connection, DriverManager, DatabaseMetaData, ResultSet}
 import scala.collection.mutable.HashMap
 import scala.io.Source.fromFile
 
-import org.apache.phoenix.spark._
-
 object HiveToPhoenix{
   def main(args: Array[String]) {
     val props = getProps(args(0))
 
-    //val srcUser = props get "srcUser" get
-    //val srcPass = props get "srcPass" get
-    //val srcClass = props get "srcClass" get
-    //val srcConnStr = props get "srcConnStr" get
-    //val srcDb = props get "srcDb" get
     val srcTable = props get "srcTable" get
     val srcScript = props get "srcScript" get
 
@@ -33,14 +26,13 @@ object HiveToPhoenix{
     var typeMap = new HashMap[String, String]().withDefaultValue(null)
     props.get("typeMap").get.split(",").map(x => typeMap.put(x.split("\\|")(0).toLowerCase, x.split("\\|")(1).toLowerCase))
 
-    //val srcMeta = getConn(srcClass, srcConnStr, srcUser, srcPass).getMetaData()
-    //val srcTableMeta = srcMeta.getColumns(null, srcDb, srcTable, null)
-
     val query = if (srcScript != null) fromFile(srcScript).getLines().mkString("") else "select * from " + srcTable
     println("INFO: SOURCE QUERY: \n" + query)
 
     // Load source into df
-    val sparkConf = new SparkConf().setAppName("HiveToPhoenix-"+srcTable+"-"+dstTable)
+    val sparkConf = new SparkConf()
+      .setAppName("HiveToPhoenix-"+srcTable+"-"+dstTable)
+      .setJars(Seq("/usr/hdp/current/phoenix-client/phoenix-client.jar"))
     val sc = new SparkContext(sparkConf)
     val sqlContext = new org.apache.spark.sql.hive.HiveContext(sc)
     var df = sqlContext.sql(query)
