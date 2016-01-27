@@ -21,6 +21,7 @@ object HiveToPhoenix{
     val dstTable = props get "dstTable" get
     val dstPk = props get "dstPk" get
     val dstZkUrl = props get "dstZkUrl" get
+    val jars = props get "jars" get
 
     // Establish src->dst type mapping
     var typeMap = new HashMap[String, String]().withDefaultValue(null)
@@ -30,9 +31,8 @@ object HiveToPhoenix{
     println("INFO: SOURCE QUERY: \n" + query)
 
     // Load source into df
-    val sparkConf = new SparkConf()
-      .setAppName("HiveToPhoenix-"+srcTable+"-"+dstTable)
-      .setJars(Seq("/usr/hdp/current/phoenix-client/phoenix-client.jar"))
+    var sparkConf = new SparkConf().setAppName("HiveToPhoenix-"+srcTable+"-"+dstTable)
+    if (jars != null) sparkConf = sparkConf.setJars(jars.split(","))
     val sc = new SparkContext(sparkConf)
     val sqlContext = new org.apache.spark.sql.hive.HiveContext(sc)
     var df = sqlContext.sql(query)

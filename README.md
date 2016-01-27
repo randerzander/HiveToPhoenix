@@ -56,7 +56,7 @@ ToDo:
 
 1. Support derived expressions, e.g. select id, count(*) as count from srcTable
 
-To build manually:
+To build manually, make sure JAVA_HOME is pointing to a Java 1.7 JDK and:
 ```
 mvn clean package
 ```

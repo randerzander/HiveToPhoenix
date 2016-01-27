@@ -62,14 +62,11 @@
       <version>4.4.0.${hdp.version}</version>
     </dependency>
 
-  <!--
     <dependency>
       <groupId>org.apache.phoenix</groupId>
       <artifactId>phoenix-spark</artifactId>
       <version>4.4.0.${hdp.version}</version>
-      <scope>provided</scope>
     </dependency>
-    -->
 
     <dependency>
       <groupId>org.scala-lang</groupId>
