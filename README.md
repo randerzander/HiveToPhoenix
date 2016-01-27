@@ -52,10 +52,6 @@ Here we've put data in HDFS & defined a Hive table for reading it. Then we ran a
 test/input/test.txt contained 2 records, but the Phoenix table contains only one: the test/test_in.sql script included a "where" clause filter, demonstrating the ability to load specific subsets of records.
 
 
-ToDo:
-
-1. Support derived expressions, e.g. select id, count(*) as count from srcTable
-
 To build manually, make sure JAVA_HOME is pointing to a Java 1.7 JDK and:
 ```
 mvn clean package
