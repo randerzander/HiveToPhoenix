@@ -50,8 +50,15 @@
     </dependency>
 
     <dependency>
+      <groupId>org.apache.spark</groupId>
+      <artifactId>spark-hive_2.10</artifactId>
+      <version>1.5.2.${hdp.version}</version>
+      <scope>provided</scope>
+    </dependency>
+
+    <dependency>
       <groupId>org.apache.phoenix</groupId>
-      <artifactId>phoenix-server-client</artifactId>
+      <artifactId>phoenix-core</artifactId>
       <version>4.4.0.${hdp.version}</version>
     </dependency>
 
@@ -59,13 +66,6 @@
       <groupId>org.apache.phoenix</groupId>
       <artifactId>phoenix-spark</artifactId>
       <version>4.4.0.${hdp.version}</version>
-      <scope>provided</scope>
-    </dependency>
-
-    <dependency>
-      <groupId>org.apache.spark</groupId>
-      <artifactId>spark-hive_2.10</artifactId>
-      <version>1.5.2.${hdp.version}</version>
     </dependency>
 
     <dependency>
