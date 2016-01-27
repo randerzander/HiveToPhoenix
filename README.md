@@ -4,10 +4,6 @@ The HiveToPhoenix artifact is intended to be used as a reusable application for 
 
 The job properties (job.props) file takes the typical Java Properties file format:
 ```
-srcUser=
-srcPass=
-srcClass=org.apache.hive.jdbc.HiveDriver
-srcConnStr=jdbc:hive2://localhost:10000
 srcTable=test
 srcScript=test/test_in.sql
 
