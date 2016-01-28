@@ -56,6 +56,17 @@
       <scope>provided</scope>
     </dependency>
 
+    <!--
+    Spark provides hadoop-hdfs classes, so need to force
+    exclusion from the build by scoping them "provided"
+    -->
+    <dependency>
+      <groupId>org.apache.hadoop</groupId>
+      <artifactId>hadoop-hdfs</artifactId>
+      <version>2.7.1.${hdp.version}</version>
+      <scope>provided</scope>
+    </dependency>
+
     <dependency>
       <groupId>org.apache.phoenix</groupId>
       <artifactId>phoenix-core</artifactId>
@@ -73,7 +84,6 @@
       <artifactId>scala-library</artifactId>
       <version>2.10.4</version>
     </dependency>
-
   </dependencies>
 
   <pluginRepositories>
