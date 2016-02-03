@@ -1,7 +1,7 @@
-srcScript=test/one.sql,test/two.sql
+srcScripts=test/one.sql,test/two.sql
 srcTables=three
 
-dstTable=one,two,three
+dstTables=one,two,three
 dstUser=
 dstPass=
 dstClass=org.apache.phoenix.jdbc.PhoenixDriver
