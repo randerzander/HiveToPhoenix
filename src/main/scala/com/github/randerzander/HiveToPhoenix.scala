@@ -45,6 +45,7 @@ object HiveToPhoenix{
       for (table <- srcTables.split(",")) queries :+ "select * from " + table
 
     for ((query, i) <- queries.zipWithIndex) {
+      println("INFO: SparkSQL query: " + query.stripSuffix(";"))
       var df = sqlContext.sql(query.stripSuffix(";"))
       df = df.toDF(df.columns.map(x => x.toUpperCase): _*)
       val dstTable = dstTables.split(",")(i).toUpperCase
@@ -63,13 +64,17 @@ object HiveToPhoenix{
         getConn(dstClass, dstConnStr, dstUser, dstPass).createStatement().execute(command)
 
         // Save query results in Phoenix
+        println("INFO: Saving to Phoenix!")
         df.save(
           "org.apache.phoenix.spark",
           SaveMode.Overwrite,
           Map("table" -> dstTable, "zkUrl" -> dstZkUrl)
         )
       }
-      else df.write.format(dstFormat).saveAsTable(dstTable)
+      else {
+        println("INFO: Saving to Hive!")
+        df.write.format(dstFormat).saveAsTable(dstTable)
+      }
     }
 
     sc.stop()
