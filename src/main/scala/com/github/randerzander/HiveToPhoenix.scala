@@ -5,6 +5,7 @@ import org.apache.spark.sql.types._
 import org.apache.spark.sql._
 import java.sql.{Connection, DriverManager, DatabaseMetaData, ResultSet}
 import scala.collection.mutable.HashMap
+import scala.collection.mutable.ArrayBuffer
 import scala.io.Source.fromFile
 
 object HiveToPhoenix{
@@ -38,11 +39,11 @@ object HiveToPhoenix{
     val sqlContext = new org.apache.spark.sql.hive.HiveContext(sc)
 
     // Build array of queries for generating DataFrames
-    var queries = Array[String]()
+    var queries = ArrayBuffer[String]()
     if (srcScripts != null)
-      for (script <- srcScripts.split(",")) queries :+ fromFile(script).getLines().mkString("")
+      for (script <- srcScripts.split(",")) queries += fromFile(script).getLines().mkString("")
     if (srcTables != null)
-      for (table <- srcTables.split(",")) queries :+ "select * from " + table
+      for (table <- srcTables.split(",")) queries += "select * from " + table
 
     for ((query, i) <- queries.zipWithIndex) {
       println("INFO: SparkSQL query: " + query.stripSuffix(";"))
