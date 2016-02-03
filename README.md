@@ -4,10 +4,10 @@ The HiveToPhoenix artifact is intended to be used as a reusable application for 
 
 The job properties (job.props) file takes the typical Java Properties file format:
 ```
-srcTable=test
-srcScript=test/test_in.sql
+srcScripts=test/one.sql,test/two.sql
+srcTables=three
 
-dstTable=test
+dstTables=one,two,three
 dstUser=
 dstPass=
 dstClass=org.apache.phoenix.jdbc.PhoenixDriver
@@ -19,9 +19,15 @@ typeMap=string|varchar,int|integer
 jars=
 ```
 
-If srcScript is null, the Phoenix table will be loaded with the result of "select * from srcTable".
+srcScripts is a comma separated list of local files which will be executed as SparkSQL queries.
 
-If srcScript is not null, the contents of the file at the specified path will be executed by SparkSQL and results will be loaded.
+srcTables is a comma separated list of Hive tables which will be queried as "select * from table".
+
+dstTables is a comma separated list of Phoenix table names which should be populated from srcScript queries/srcTables.
+
+Make sure that dstTables entries are ordered with destination table names for srcScripts query results first, followed by destination tablenames corresponding to srcTables entries.
+
+In the properties example above, we generate query results for scripts test/one.sql and test/two.sql. These results are loaded into Phoenix destination tables "one", and "two". Finally, we execute "select * from three" and load results into Phoenix destination table "three".
 
 typeMap exists because Hive types and Phoenix types are not 1 to 1. "string|varchar" means that "string" types in the source table will be mapped to "varchar" types in the Phoenix table. Hive and Phoenix types are evolving, so the user is free to update this typeMap field.
 

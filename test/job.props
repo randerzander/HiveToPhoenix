@@ -1,5 +1,5 @@
-srcTable=test
-srcScript=test/test_in.sql
+srcTables=test1,test2
+srcScript=test/1.sql,test/2.sql
 
 dstTable=test
 dstUser=

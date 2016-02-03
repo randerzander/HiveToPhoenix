@@ -11,14 +11,14 @@ object HiveToPhoenix{
   def main(args: Array[String]) {
     val props = getProps(args(0))
 
-    val srcTable = props get "srcTable" get
-    val srcScript = props get "srcScript" get
+    val srcTables = props get "srcTables" get
+    val srcScripts = props get "srcScripts" get
 
     val dstUser = props get "dstUser" get
     val dstPass = props get "dstPass" get
     val dstClass = props get "dstClass" get
     val dstConnStr = props get "dstConnStr" get
-    val dstTable = props get "dstTable" get
+    val dstTables = props get "dstTables" get
     val dstPk = props get "dstPk" get
     val dstZkUrl = props get "dstZkUrl" get
     val jars = props get "jars" get
@@ -27,31 +27,38 @@ object HiveToPhoenix{
     var typeMap = new HashMap[String, String]().withDefaultValue(null)
     props.get("typeMap").get.split(",").map(x => typeMap.put(x.split("\\|")(0).toLowerCase, x.split("\\|")(1).toLowerCase))
 
-    val query = if (srcScript != null) fromFile(srcScript).getLines().mkString("") else "select * from " + srcTable
-    println("INFO: SOURCE QUERY: \n" + query)
-
-    // Load source into df
-    var sparkConf = new SparkConf().setAppName("HiveToPhoenix-"+srcTable+"-"+dstTable)
+    // Create SparkContext
+    var sparkConf = new SparkConf().setAppName("HiveToPhoenix")
     if (jars != null) sparkConf = sparkConf.setJars(jars.split(","))
     val sc = new SparkContext(sparkConf)
     val sqlContext = new org.apache.spark.sql.hive.HiveContext(sc)
-    var df = sqlContext.sql(query.stripSuffix(";"))
-    df = df.toDF(df.columns.map(x => x.toUpperCase):_*)
 
-    // Create Phoenix DDL
-    var command = "create table if not exists " + dstTable + "("
-    for (field <- df.schema){
-      val srcType = field.dataType.simpleString
-      val dstType = if (typeMap contains srcType) typeMap get srcType get else srcType
-      command += field.name + " " + dstType + ","
+    // Build array of queries for generating DataFrames
+    var queries = Array[String]()
+    if (srcScripts != null)
+      for (script <- srcScripts.split(",")) queries :+ fromFile(script).getLines().mkString("")
+    if (srcTables != null)
+      for (table <- srcTables.split(",")) queries :+ "select * from " + table
+
+    for ((query, i) <- queries.zipWithIndex){
+      var df = sqlContext.sql(query)
+      df = df.toDF(df.columns.map(x => x.toUpperCase):_*)
+      // Create Phoenix DDL
+      var command = "create table if not exists " + dstTables.split(",")(i) + "("
+      for (field <- df.schema){
+        val srcType = field.dataType.simpleString
+        val dstType = if (typeMap contains srcType) typeMap get srcType get else srcType
+        command += field.name + " " + dstType + ","
+      }
+      command += " constraint my_pk primary key (" + dstPk +"))"
+      println("INFO: DESTINATION DDL:\n" + command)
+      // Execute Phoenix DDL
+      getConn(dstClass, dstConnStr, dstUser, dstPass).createStatement().execute(command)
+
+      // Save query results in Phoenix and quit
+      df.save("org.apache.phoenix.spark", SaveMode.Overwrite, Map("table" -> dstTables.split(",")(i).toUpperCase, "zkUrl" -> dstZkUrl))
     }
-    command += " constraint my_pk primary key (" + dstPk +"))"
-    println("INFO: DESTINATION DDL:\n" + command)
-    // Execute Phoenix DDL
-    getConn(dstClass, dstConnStr, dstUser, dstPass).createStatement().execute(command)
 
-    // Save query results in Phoenix and quit
-    df.save("org.apache.phoenix.spark", SaveMode.Overwrite, Map("table" -> dstTable.toUpperCase, "zkUrl" -> dstZkUrl))
     sc.stop()
   }
 
