@@ -1,7 +1,7 @@
-srcTables=test1,test2
-srcScript=test/1.sql,test/2.sql
+srcScript=test/one.sql,test/two.sql
+srcTables=three
 
-dstTable=test
+dstTable=one,two,three
 dstUser=
 dstPass=
 dstClass=org.apache.phoenix.jdbc.PhoenixDriver
@@ -10,3 +10,6 @@ dstZkUrl=localhost:2181:/hbase-unsecure
 dstPk=id
 
 typeMap=string|varchar,int|integer
+jars=
+destination=phoenix
+dstFormat=orc

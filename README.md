@@ -1,6 +1,6 @@
 Apache Hive is a data warehouse style SQL engine for Apache Hadoop. Apache Phoenix is a SQL interface on top of Apache HBase. While Hive is great at executing batch and large-scale analytical queries, HBase's indexed lookups will be faster for record counts of up to a few million rows (specific count depends on a variety of factors).
 
-The HiveToPhoenix artifact is intended to be used as a reusable application for executing queries against Hive tables and saving results to Phoenix tables. It requires an input properties file and relies on SparkSQL's DataFrames to make Hive->Phoenix data movement easy.
+The HiveToPhoenix artifact is intended to be used as a reusable application for executing queries against Hive tables and saving results to Phoenix tables (and vice versa). It requires an input properties file and relies on SparkSQL's DataFrames to make data movement easy.
 
 The job properties (job.props) file takes the typical Java Properties file format:
 ```
@@ -17,6 +17,8 @@ dstPk=id
 
 typeMap=string|varchar,int|integer
 jars=
+destination=phoenix
+dstFormat=orc
 ```
 
 srcScripts is a comma separated list of local files which will be executed as SparkSQL queries.
@@ -28,6 +30,8 @@ dstTables is a comma separated list of Phoenix table names which should be popul
 Make sure that dstTables entries are ordered with destination table names for srcScripts query results first, followed by destination tablenames corresponding to srcTables entries.
 
 In the properties example above, we generate query results for scripts test/one.sql and test/two.sql. These results are loaded into Phoenix destination tables "one", and "two". Finally, we execute "select * from three" and load results into Phoenix destination table "three".
+
+To query Phoenix tables and save them back to Hive, change "destination=phoenix" to "destination=hive". If saving tables to Hive, dstFormat specifies the intended file-format (ORC, Parquet, Avro, text, etc).
 
 typeMap exists because Hive types and Phoenix types are not 1 to 1. "string|varchar" means that "string" types in the source table will be mapped to "varchar" types in the Phoenix table. Hive and Phoenix types are evolving, so the user is free to update this typeMap field.
 

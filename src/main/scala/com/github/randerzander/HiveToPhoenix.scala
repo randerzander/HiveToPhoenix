@@ -23,9 +23,13 @@ object HiveToPhoenix{
     val dstZkUrl = props get "dstZkUrl" get
     val jars = props get "jars" get
 
+    val destination = props get "destination" get
+    val dstFormat = props get "dstFormat" get
+
     // Establish src->dst type mapping
     var typeMap = new HashMap[String, String]().withDefaultValue(null)
-    props.get("typeMap").get.split(",").map(x => typeMap.put(x.split("\\|")(0).toLowerCase, x.split("\\|")(1).toLowerCase))
+    props.get("typeMap").get.split(",")
+      .map(x => typeMap.put(x.split("\\|")(0).toLowerCase, x.split("\\|")(1).toLowerCase))
 
     // Create SparkContext
     var sparkConf = new SparkConf().setAppName("HiveToPhoenix")
@@ -40,23 +44,32 @@ object HiveToPhoenix{
     if (srcTables != null)
       for (table <- srcTables.split(",")) queries :+ "select * from " + table
 
-    for ((query, i) <- queries.zipWithIndex){
-      var df = sqlContext.sql(query)
-      df = df.toDF(df.columns.map(x => x.toUpperCase):_*)
-      // Create Phoenix DDL
-      var command = "create table if not exists " + dstTables.split(",")(i) + "("
-      for (field <- df.schema){
-        val srcType = field.dataType.simpleString
-        val dstType = if (typeMap contains srcType) typeMap get srcType get else srcType
-        command += field.name + " " + dstType + ","
-      }
-      command += " constraint my_pk primary key (" + dstPk +"))"
-      println("INFO: DESTINATION DDL:\n" + command)
-      // Execute Phoenix DDL
-      getConn(dstClass, dstConnStr, dstUser, dstPass).createStatement().execute(command)
+    for ((query, i) <- queries.zipWithIndex) {
+      var df = sqlContext.sql(query.stripSuffix(";"))
+      df = df.toDF(df.columns.map(x => x.toUpperCase): _*)
+      val dstTable = dstTables.split(",")(i).toUpperCase
 
-      // Save query results in Phoenix and quit
-      df.save("org.apache.phoenix.spark", SaveMode.Overwrite, Map("table" -> dstTables.split(",")(i).toUpperCase, "zkUrl" -> dstZkUrl))
+      if (destination.toLowerCase.equals("phoenix")){
+        // Create DDL
+        var command = "create table if not exists " + dstTable + "("
+        for (field <- df.schema) {
+          val srcType = field.dataType.simpleString
+          val dstType = if (typeMap contains srcType) typeMap get srcType get else srcType
+          command += field.name + " " + dstType + ","
+        }
+        command += " constraint my_pk primary key (" + dstPk + "))"
+        println("INFO: DESTINATION DDL:\n" + command)
+        // Execute Phoenix DDL
+        getConn(dstClass, dstConnStr, dstUser, dstPass).createStatement().execute(command)
+
+        // Save query results in Phoenix
+        df.save(
+          "org.apache.phoenix.spark",
+          SaveMode.Overwrite,
+          Map("table" -> dstTable, "zkUrl" -> dstZkUrl)
+        )
+      }
+      else df.write.format(dstFormat).saveAsTable(dstTable)
     }
 
     sc.stop()
