@@ -1,8 +1,8 @@
 Apache Hive is a data warehouse style SQL engine for Apache Hadoop. Apache Phoenix is a SQL interface on top of Apache HBase. While Hive is great at executing batch and large-scale analytical queries, HBase's indexed lookups will be faster for record counts of up to a few million rows (specific count depends on a variety of factors).
 
-The HiveToPhoenix artifact is intended to be used as a reusable application for executing queries against Hive tables and saving results to Phoenix tables (and vice versa). It requires an input properties file and relies on SparkSQL's DataFrames to make data movement easy.
+The HiveToPhoenix artifact is intended to be used as a reusable application for executing queries against Hive tables and saving results to Phoenix tables (and vice versa). It requires an input properties file (job.properties, following typical key=value format) and relies on SparkSQL's DataFrames to make data movement easy.
 
-The job properties (job.props) file takes the typical Java Properties file format:
+***Saving Hive queries and tables into Phoenix:***
 
 **Example job.properties file:** Runs 2 Hive queries and saves results + an additional table into Phoenix:
 ```
@@ -30,6 +30,8 @@ In the properties example above, we generate query results for scripts test/one.
 typeMap exists because Hive types and Phoenix types are not 1 to 1. "string|varchar" means that "string" types in the source table will be mapped to "varchar" types in the Phoenix table. Hive and Phoenix types are evolving, so the user is free to update this typeMap field.
 
 The "jars" property allows end-users to supply a comma separated list of jars which need to be available on the classpath of the executors (JVM libraries, etc)
+
+***Saving Phoenix tables into Hive:***
 
 To query Phoenix tables and save them back to Hive, change "destination=phoenix" to "destination=hive". When saving tables to Hive, "format" specifies the intended file-format (ORC, Parquet, Avro, text, etc).
 
