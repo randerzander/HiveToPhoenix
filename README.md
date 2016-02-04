@@ -49,6 +49,7 @@ format=orc
 ```
 
 **Note**: The following example assumes there are no existing Hive or Phoenix tables named "test".
+
 **Full Example**:
 ```
 hadoop fs -put test/input/ .
