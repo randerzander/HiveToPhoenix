@@ -12,7 +12,7 @@ object HiveToPhoenix{
     val props = getProps(args(0))
 
     val srcScripts = getArrayProp(props, "srcScripts")
-    val srcTables = getArrayProp(props, "srcTables")
+    val srcTables = getArrayProp(props, "srcTables").map(t=>t.toUpperCase)
     val dstTables = getArrayProp(props, "dstTables").map(t=>t.toUpperCase)
     val pk = props.getOrElse("dstPk", None)
 
