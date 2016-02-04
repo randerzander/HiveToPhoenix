@@ -29,7 +29,7 @@ object HiveToPhoenix{
       System.exit(-1)
     }
 
-    val format = if (destination.equals("phoenix")) "org.apache.phoenix.spark" else props.getOrElse("format", "orc")
+    val format = props.getOrElse("format", "orc")
     val jdbcClass = "org.apache.phoenix.jdbc.PhoenixDriver"
     val connStr = "jdbc:phoenix:" + zkUrl
     val jars = getArrayProp(props, "jars")

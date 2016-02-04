@@ -3,22 +3,18 @@ Apache Hive is a data warehouse style SQL engine for Apache Hadoop. Apache Phoen
 The HiveToPhoenix artifact is intended to be used as a reusable application for executing queries against Hive tables and saving results to Phoenix tables (and vice versa). It requires an input properties file and relies on SparkSQL's DataFrames to make data movement easy.
 
 The job properties (job.props) file takes the typical Java Properties file format:
+
+**Example job.properties file:** Runs 2 Hive queries and copy results + an additional table into Phoenix:
 ```
 srcScripts=test/one.sql,test/two.sql
 srcTables=three
 
 dstTables=one,two,three
-dstUser=
-dstPass=
-dstClass=org.apache.phoenix.jdbc.PhoenixDriver
-dstConnStr=jdbc:phoenix:localhost:2181:/hbase-unsecure
-dstZkUrl=localhost:2181:/hbase-unsecure
+zkUrl=localhost:2181:/hbase-unsecure
 dstPk=id
 
 typeMap=string|varchar,int|integer
-jars=
 destination=phoenix
-dstFormat=orc
 ```
 
 srcScripts is a comma separated list of local files which will be executed as SparkSQL queries.
@@ -31,14 +27,27 @@ Make sure that dstTables entries are ordered with destination table names for sr
 
 In the properties example above, we generate query results for scripts test/one.sql and test/two.sql. These results are loaded into Phoenix destination tables "one", and "two". Finally, we execute "select * from three" and load results into Phoenix destination table "three".
 
-To query Phoenix tables and save them back to Hive, change "destination=phoenix" to "destination=hive". If saving tables to Hive, dstFormat specifies the intended file-format (ORC, Parquet, Avro, text, etc).
+To query Phoenix tables and save them back to Hive, change "destination=phoenix" to "destination=hive". If saving tables to Hive, "format" specifies the intended file-format (ORC, Parquet, Avro, text, etc).
 
 typeMap exists because Hive types and Phoenix types are not 1 to 1. "string|varchar" means that "string" types in the source table will be mapped to "varchar" types in the Phoenix table. Hive and Phoenix types are evolving, so the user is free to update this typeMap field.
 
 The "jars" property allows end-users to supply a comma separated list of jars which need to be available on the classpath of the executors (JVM libraries, etc)
 
+**WARNING:** Due to SparkSQL API changes in Spark 1.5.2, copying from Phoenix to Hive only works with Spark 1.4.1 or lower. See [this gist](https://gist.github.com/randerzander/cbcf30f2db67d9a6fd57) for instructions on downloading and using Apache Spark 1.4.1 with HDP 2.3.4.
+
+**Example job.properties file:** Copy a Phoenix table back to Hive:
+```
+srcTables=phoenix_table
+
+dstTables=phoenix_table_copy
+zkUrl=localhost:2181:/hbase-unsecure
+
+destination=hive
+format=orc
+```
+
 **Note**: The following example assumes there are no existing Hive or Phoenix tables named "test".
-Example:
+**Full Example**:
 ```
 hadoop fs -put test/input/ .
 hive --hiveconf PATH=/user/root/input/ -f test/test.ddl
@@ -54,9 +63,9 @@ a                                                                               
 Time: 0.039 sec(s)
 ```
 
-Here we've put data in HDFS & defined a Hive table for reading it. Then we ran a Spark job to load the Hive table into a Phoenix table.
+Here we've put data in HDFS & defined three Hive tables for reading it. Then we ran a Spark job to load all three Hive tables into equivalent Phoenix tables.
 
-test/input/test.txt contained 2 records, but the Phoenix table contains only one: the test/test_in.sql script included a "where" clause filter, demonstrating the ability to load specific subsets of records.
+test/input/test.txt contained 2 records, but the Phoenix tables contains only one: the test/one.sql and test/two.sql scripts included "where" clause filters, demonstrating the ability to load specific subsets of records.
 
 
 To build manually, make sure JAVA_HOME is pointing to a Java 1.7 JDK and:

@@ -2,14 +2,8 @@ srcScripts=test/one.sql,test/two.sql
 srcTables=three
 
 dstTables=one,two,three
-dstUser=
-dstPass=
-dstClass=org.apache.phoenix.jdbc.PhoenixDriver
-dstConnStr=jdbc:phoenix:localhost:2181:/hbase-unsecure
-dstZkUrl=localhost:2181:/hbase-unsecure
+zkUrl=localhost:2181:/hbase-unsecure
 dstPk=id
 
 typeMap=string|varchar,int|integer
-jars=
 destination=phoenix
-dstFormat=orc
