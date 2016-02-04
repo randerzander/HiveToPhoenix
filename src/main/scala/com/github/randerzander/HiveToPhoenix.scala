@@ -52,9 +52,8 @@ object HiveToPhoenix{
       else dfs = dfs :+ sqlContext.load("org.apache.phoenix.spark", Map("table" -> t, "zkUrl" -> zkUrl))
     }
 
-    var queries = scripts :+ srcTables.map(t => "select * from " + t)
     for((df, i) <- dfs.zipWithIndex){
-      println("INFO: Saving query ("+queries(i)+") to "+destination+" table: " + dstTables(i))
+      println("INFO: Saving to "+destination+" table: " + dstTables(i))
       val tmpDf = df.toDF(df.columns.map(x => x.toUpperCase): _*)
       if (destination.equals("phoenix")){
         // Create DDL
