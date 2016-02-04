@@ -3,7 +3,7 @@ package com.github.randerzander;
 import org.apache.spark.{SparkContext, SparkConf}
 import org.apache.spark.sql.types._
 import org.apache.spark.sql._
-import java.sql.{Connection, DriverManager, DatabaseMetaData, ResultSet}
+import java.sql.{Connection, DriverManager}
 import scala.collection.mutable.HashMap
 import scala.io.Source.fromFile
 
@@ -11,9 +11,9 @@ object HiveToPhoenix{
   def main(args: Array[String]) {
     val props = getProps(args(0))
 
-    val srcScripts = props.getOrElse("srcScripts", "").split(",")
-    val srcTables = props.getOrElse("srcTables", "").split(",")
-    val dstTables = props.getOrElse("dstTables", "").split(",").map(t=>t.toUpperCase)
+    val srcScripts = getArrayProp(props, "srcScripts")
+    val srcTables = getArrayProp(props, "srcTables")
+    val dstTables = getArrayProp(props, "dstTables").map(t=>t.toUpperCase)
     val pk = props.getOrElse("dstPk", None)
 
     val zkUrl = props.getOrElse("zkUrl", "localhost:2181:/hbase-unsecure")
@@ -24,7 +24,7 @@ object HiveToPhoenix{
       System.exit(-1)
     }
 
-    if (srcScripts.size > 0 && destination.equals("phoenix")){
+    if (srcScripts.size > 0 && !destination.equals("phoenix")){
       println("SQL scripts for copying from Phoenix to Hive not supported")
       System.exit(-1)
     }
@@ -32,12 +32,11 @@ object HiveToPhoenix{
     val format = if (destination.equals("phoenix")) "org.apache.phoenix.spark" else props.getOrElse("format", "orc")
     val jdbcClass = "org.apache.phoenix.jdbc.PhoenixDriver"
     val connStr = "jdbc:phoenix:" + zkUrl
-    val jars = props.getOrElse("jars", "").split(",")
+    val jars = getArrayProp(props, "jars")
 
     // Establish src->dst type mapping
     var typeMap = new HashMap[String, String]().withDefaultValue(null)
-    props.getOrElse("typeMap", "").split(",")
-      .map(x => typeMap.put(x.split("\\|")(0).toLowerCase, x.split("\\|")(1).toLowerCase))
+    getArrayProp(props, "typeMap").map(x => typeMap.put(x.split("\\|")(0).toLowerCase, x.split("\\|")(1).toLowerCase))
 
     // Create SparkContext
     val sparkConf = new SparkConf().setAppName("HiveToPhoenix")
@@ -48,10 +47,10 @@ object HiveToPhoenix{
     var dfs = Array[DataFrame]()
     val scripts = srcScripts.map(script => fromFile(script).getLines().mkString(""))
     scripts.map(q => dfs = dfs :+ sqlContext.sql(q.stripSuffix(";")))
-    srcTables.map(t =>
+    for(t <- srcTables){
       if (destination.equals("phoenix")) dfs = dfs :+ sqlContext.sql("select * from " + t)
-      else dfs = dfs :+ sqlContext.load(format, Map("table" -> t, "zkUrl" -> zkUrl))
-    )
+      else dfs = dfs :+ sqlContext.load("org.apache.phoenix.spark", Map("table" -> t, "zkUrl" -> zkUrl))
+    }
 
     var queries = scripts :+ srcTables.map(t => "select * from " + t)
     for((df, i) <- dfs.zipWithIndex){
@@ -69,8 +68,15 @@ object HiveToPhoenix{
         println("INFO: DESTINATION DDL:\n" + command)
         // Execute Phoenix DDL
         getConn(jdbcClass, connStr).createStatement().execute(command)
+        tmpDf.write.format(format).mode(SaveMode.Overwrite).options(Map("table" -> dstTables(i), "zkUrl" -> zkUrl)).save()
       }
-      tmpDf.write.format(format).mode(SaveMode.Overwrite).options(Map("table" -> dstTables(i), "zkUrl" -> zkUrl)).save()
+      else {
+        // Workaround for Phoenix-2287 using Apache Spark 1.4.1
+        tmpDf.registerTempTable("tmp_" + dstTables(i))
+        sqlContext.sql("drop table if exists " + dstTables(i))
+        sqlContext.sql("create table " + dstTables(i) + " stored as " + format + " as select * from tmp_" + dstTables(i))
+        //tmpDf.write.format(format).mode(SaveMode.Overwrite).saveAsTable(dstTables(i))
+      }
     }
 
     sc.stop()
@@ -88,6 +94,10 @@ object HiveToPhoenix{
       }
     }
     conn
+  }
+
+  def getArrayProp(props: => HashMap[String,String], prop: => String): Array[String] = {
+    return props.getOrElse(prop, "").split(",").filter(x => !x.equals(""))
   }
 
   def getProps(file: => String): HashMap[String,String] = {
