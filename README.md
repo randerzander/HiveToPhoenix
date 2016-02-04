@@ -4,7 +4,7 @@ The HiveToPhoenix artifact is intended to be used as a reusable application for 
 
 The job properties (job.props) file takes the typical Java Properties file format:
 
-**Example job.properties file:** Runs 2 Hive queries and copy results + an additional table into Phoenix:
+**Example job.properties file:** Runs 2 Hive queries and saves results + an additional table into Phoenix:
 ```
 srcScripts=test/one.sql,test/two.sql
 srcTables=three
@@ -27,11 +27,11 @@ Make sure that dstTables entries are ordered with destination table names for sr
 
 In the properties example above, we generate query results for scripts test/one.sql and test/two.sql. These results are loaded into Phoenix destination tables "one", and "two". Finally, we execute "select * from three" and load results into Phoenix destination table "three".
 
-To query Phoenix tables and save them back to Hive, change "destination=phoenix" to "destination=hive". If saving tables to Hive, "format" specifies the intended file-format (ORC, Parquet, Avro, text, etc).
-
 typeMap exists because Hive types and Phoenix types are not 1 to 1. "string|varchar" means that "string" types in the source table will be mapped to "varchar" types in the Phoenix table. Hive and Phoenix types are evolving, so the user is free to update this typeMap field.
 
 The "jars" property allows end-users to supply a comma separated list of jars which need to be available on the classpath of the executors (JVM libraries, etc)
+
+To query Phoenix tables and save them back to Hive, change "destination=phoenix" to "destination=hive". When saving tables to Hive, "format" specifies the intended file-format (ORC, Parquet, Avro, text, etc).
 
 **WARNING:** Due to SparkSQL API changes in Spark 1.5.2, copying from Phoenix to Hive only works with Spark 1.4.1 or lower. See [this gist](https://gist.github.com/randerzander/cbcf30f2db67d9a6fd57) for instructions on downloading and using Apache Spark 1.4.1 with HDP 2.3.4.
 
