@@ -67,7 +67,7 @@ object HiveToPhoenix{
         println("INFO: DESTINATION DDL:\n" + command)
         // Execute Phoenix DDL
         getConn(jdbcClass, connStr).createStatement().execute(command)
-        tmpDf.write.format(format).mode(SaveMode.Overwrite).options(Map("table" -> dstTables(i), "zkUrl" -> zkUrl)).save()
+        tmpDf.write.format("org.apache.phoenix.spark").mode(SaveMode.Overwrite).options(Map("table" -> dstTables(i), "zkUrl" -> zkUrl)).save()
       }
       else {
         // Workaround for Phoenix-2287 using Apache Spark 1.4.1
