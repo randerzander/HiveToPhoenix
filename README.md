@@ -35,7 +35,7 @@ The "jars" property allows end-users to supply a comma separated list of jars wh
 
 To query Phoenix tables and save them back to Hive, change "destination=phoenix" to "destination=hive". When saving tables to Hive, "format" specifies the intended file-format (ORC, Parquet, Avro, text, etc).
 
-**WARNING:** [Unless you are running Phoenix 4.6+](https://issues.apache.org/jira/browse/PHOENIX-2287), SparkSQL API changes in Spark 1.5.x prevent successful copying from Phoenix to Hive. To workaround this, use Spark 1.4.1 or lower. See [this gist](https://gist.github.com/randerzander/cbcf30f2db67d9a6fd57) for instructions on downloading and using Apache Spark 1.4.1 with HDP 2.3.4.
+**WARNING:** [Unless you are running Phoenix 4.5+](https://issues.apache.org/jira/browse/PHOENIX-2287), SparkSQL API changes in Spark 1.5.x prevent successful copying from Phoenix to Hive. To workaround this, use Spark 1.4.1 or lower. See [this gist](https://gist.github.com/randerzander/cbcf30f2db67d9a6fd57) for instructions on downloading and using Apache Spark 1.4.1 with HDP 2.3.4.
 
 **Example job.properties file:** Copy a Phoenix table back to Hive:
 ```
@@ -49,6 +49,7 @@ format=orc
 ```
 
 **Note**: The following example assumes there are no existing Hive or Phoenix tables named "test".
+
 **Full Example**:
 ```
 hadoop fs -put test/input/ .
