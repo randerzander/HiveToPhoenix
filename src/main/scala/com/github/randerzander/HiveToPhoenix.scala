@@ -77,7 +77,7 @@ object HiveToPhoenix{
         } catch { 
           case _: Throwable => println("Table " + dstTables(i) + " didn't exist.. creating..")
         } 
-        sqlContext.sql("create table " + dstTables(i) + " stored as " + format + " as select * from " + dstTables(i) + "_tmp")
+        sqlContext.sql("create table `" + dstTables(i) + "` stored as " + format + " as select * from `" + dstTables(i) + "_tmp`")
         //tmpDf.write.format(format).mode(SaveMode.Overwrite).saveAsTable(dstTables(i))
       }
     }
