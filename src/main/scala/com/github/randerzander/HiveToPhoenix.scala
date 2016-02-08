@@ -80,7 +80,7 @@ object HiveToPhoenix{
         val tableName = dstTables(i).split("\\.").last
         sqlContext.sql("use " + dbName)
         tmpDf.registerTempTable(tableName + "_tmp")
-        sqlContext.sql("create table `"+dbName+"`.`"+tableName+" stored as " + format + " as select * from "+tableName+"_tmp")
+        sqlContext.sql("create table `"+dbName+"`.`"+tableName+"` stored as " + format + " as select * from "+tableName+"_tmp")
         //tmpDf.write.format(format).mode(SaveMode.Overwrite).saveAsTable(dstTables(i))
       }
     }
