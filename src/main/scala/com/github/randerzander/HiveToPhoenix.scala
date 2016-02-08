@@ -71,9 +71,9 @@ object HiveToPhoenix{
       }
       else {
         // Workaround for Phoenix-2287 using Apache Spark 1.4.1
-        tmpDf.registerTempTable("tmp_" + dstTables(i))
+        tmpDf.registerTempTable(dstTables(i) + "_tmp")
         sqlContext.sql("drop table if exists " + dstTables(i))
-        sqlContext.sql("create table " + dstTables(i) + " stored as " + format + " as select * from tmp_" + dstTables(i))
+        sqlContext.sql("create table " + dstTables(i) + " stored as " + format + " as select * from " + dstTables(i) + "_tmp")
         //tmpDf.write.format(format).mode(SaveMode.Overwrite).saveAsTable(dstTables(i))
       }
     }
