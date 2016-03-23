@@ -33,7 +33,7 @@ The "jars" property allows end-users to supply a comma separated list of jars wh
 
 ***Tables can be salted using the two salt properties;***
 
-<dstTableName>Salt is a number declaring the number of salt buckets to use for the table, the tablename must be all uppercased
+DST_TABLE_NAMESalt is a number declaring the number of salt buckets to use for the table, the tablename must be all uppercased
 
 salt is a number declaring the number of salt buckets to use for any table not listed in the above property (default salt buckets)
 
