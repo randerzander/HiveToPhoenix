@@ -31,6 +31,12 @@ typeMap exists because Hive types and Phoenix types are not 1 to 1. "string|varc
 
 The "jars" property allows end-users to supply a comma separated list of jars which need to be available on the classpath of the executors (JVM libraries, etc)
 
+***Tables can be salted using the two salt properties;***
+
+<dstTableName>Salt is a number declaring the number of salt buckets to use for the table, the tablename must be all uppercased
+
+salt is a number declaring the number of salt buckets to use for any table not listed in the above property (default salt buckets)
+
 ***Saving Phoenix tables into Hive:***
 
 To query Phoenix tables and save them back to Hive, change "destination=phoenix" to "destination=hive". When saving tables to Hive, "format" specifies the intended file-format (ORC, Parquet, Avro, text, etc).
