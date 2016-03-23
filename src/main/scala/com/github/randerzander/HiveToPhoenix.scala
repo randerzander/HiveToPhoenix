@@ -65,9 +65,9 @@ object HiveToPhoenix{
         }
         command += " constraint my_pk primary key ("+pk+"))"
         if (props.contains(dstTables(i)+"Salt")){
-	  command += " SALT_BUCKETS = "+props.get(dstTables(i)+"Salt");
+	  command += " SALT_BUCKETS = "+props.getOrElse(dstTables(i)+"Salt","10");
 	}else if(props.contains("salt")){
-          command += " SALT_BUCKETS = "+props.get("salt");
+          command += " SALT_BUCKETS = "+props.getOrElse("salt","10");
         }
         println("INFO: DESTINATION DDL:\n" + command)
         // Execute Phoenix DDL
