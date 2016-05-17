@@ -64,6 +64,11 @@ object HiveToPhoenix{
           command += field.name + " " + dstType + ","
         }
         command += " constraint my_pk primary key ("+pk+"))"
+        if (props.contains(dstTables(i)+"Salt")){
+	  command += " SALT_BUCKETS = "+props.getOrElse(dstTables(i)+"Salt","10");
+	}else if(props.contains("salt")){
+          command += " SALT_BUCKETS = "+props.getOrElse("salt","10");
+        }
         println("INFO: DESTINATION DDL:\n" + command)
         // Execute Phoenix DDL
         getConn(jdbcClass, connStr).createStatement().execute(command)
